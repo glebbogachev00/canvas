@@ -9,9 +9,11 @@ interface ParameterControlsProps {
   onChange: (params: Partial<GenerationParameters>) => void
   theme: AppTheme
   mobile?: boolean
+  showPrivateLayer?: boolean
+  onLayerToggle?: (show: boolean) => void
 }
 
-export default function ParameterControls({ parameters, onChange, theme, mobile = false }: ParameterControlsProps) {
+export default function ParameterControls({ parameters, onChange, theme, mobile = false, showPrivateLayer = false, onLayerToggle }: ParameterControlsProps) {
   const updateParameter = <K extends keyof GenerationParameters>(
     key: K, 
     value: GenerationParameters[K]
@@ -197,14 +199,30 @@ export default function ParameterControls({ parameters, onChange, theme, mobile 
           </button>
           
           {parameters.encryptionType === 'signature' && (
-            <div className={`text-xs font-light ${
-              theme === 'black' ? 'text-gray-600' : 'text-gray-400'
-            }`}>
-              <div className="mb-2">signature mode active:</div>
-              <div>• click canvas to toggle layers</div>
-              <div>• public/private key encryption</div>
-              <div>• enhanced complexity layering</div>
-            </div>
+            <>
+              <button
+                onClick={() => onLayerToggle?.(!showPrivateLayer)}
+                className={`block text-left text-xs transition-all duration-200 ${
+                  showPrivateLayer
+                    ? theme === 'black'
+                      ? 'text-red-400 hover:text-red-300 font-medium'
+                      : 'text-red-600 hover:text-red-500 font-medium'
+                    : theme === 'black'
+                      ? 'text-green-400 hover:text-green-300 font-medium'
+                      : 'text-green-600 hover:text-green-500 font-medium'
+                }`}
+              >
+                {showPrivateLayer ? 'showing private layer' : 'showing public layer'}
+              </button>
+              
+              <div className={`text-xs font-light mt-2 ${
+                theme === 'black' ? 'text-gray-600' : 'text-gray-400'
+              }`}>
+                <div>• click above to toggle layers</div>
+                <div>• public/private key encryption</div>
+                <div>• enhanced complexity layering</div>
+              </div>
+            </>
           )}
         </div>
       </AccordionSection>

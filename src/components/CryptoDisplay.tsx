@@ -52,19 +52,18 @@ export default function CryptoDisplay({ parameters, theme }: CryptoDisplayProps)
       case 'bottomRight':
         return 'bottom-4 right-4'
       default:
-        return 'top-4 right-4'
+        return 'bottom-4 left-4' // Default to bottom left for signature
     }
   }
 
   return (
     <div className={`absolute ${getPositionClasses()} z-20 pointer-events-none`}>
       <div className={`
-        px-4 py-3 rounded-lg font-black text-base tracking-widest uppercase
-        transition-all duration-300 shadow-2xl backdrop-blur-md
-        border-2 transform hover:scale-105
+        px-3 py-1 font-mono text-xs tracking-wide
+        transition-all duration-300 backdrop-blur-sm
         ${theme === 'black' 
-          ? 'bg-white text-black border-white shadow-white/20' 
-          : 'bg-black text-white border-black shadow-black/50'
+          ? 'text-white/80 bg-black/10 border-l-2 border-white/20' 
+          : 'text-black/70 bg-white/10 border-l-2 border-black/20'
         }
       `}>
         {cryptoCode}

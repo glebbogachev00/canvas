@@ -14,14 +14,17 @@ interface CanvasProps {
   onParametersChange?: (params: Partial<GenerationParameters>) => void
   theme: AppTheme
   mobile?: boolean
+  showPrivateLayer?: boolean
+  onLayerToggle?: (show: boolean) => void
 }
 
-const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ parameters, audioFile, onParametersChange, theme, mobile = false }, ref) => {
+const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ parameters, audioFile, onParametersChange, theme, mobile = false, showPrivateLayer: externalShowPrivateLayer, onLayerToggle }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [hash, setHash] = useState<string>('')
   const [audioData, setAudioData] = useState<AudioFrequencyData | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [showPrivateLayer, setShowPrivateLayer] = useState(false)
+  // Use external showPrivateLayer if provided, otherwise use internal state
+  const showPrivateLayer = externalShowPrivateLayer ?? false
   const [layeredData, setLayeredData] = useState<any>(null)
   const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null)
   const animationFrameRef = useRef<number>()
@@ -215,8 +218,8 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
     const timeDiff = now - lastClickTime
     
     // In signature mode, single click toggles layers
-    if (parameters.encryptionType === 'signature') {
-      setShowPrivateLayer(prev => !prev)
+    if (parameters.encryptionType === 'signature' && onLayerToggle) {
+      onLayerToggle(!showPrivateLayer)
     } else {
       // Double-click detection (within 400ms) for other modes
       if (timeDiff < 400 && onParametersChange) {
@@ -280,27 +283,6 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
       {/* Crypto signature display - visible and bold */}
       <CryptoDisplay parameters={parameters} theme={theme} />
       
-      {/* Layer indicator for signature mode */}
-      {parameters.encryptionType === 'signature' && (
-        <div className="absolute bottom-4 left-4 z-20">
-          <div className={`
-            px-3 py-2 rounded-md font-bold text-xs tracking-wide uppercase
-            transition-all duration-300 shadow-lg backdrop-blur-sm cursor-pointer
-            ${showPrivateLayer 
-              ? theme === 'black' 
-                ? 'bg-red-500/90 text-white border border-red-400/50' 
-                : 'bg-red-600/90 text-white border border-red-500/50'
-              : theme === 'black' 
-                ? 'bg-green-500/90 text-white border border-green-400/50' 
-                : 'bg-green-600/90 text-white border border-green-500/50'
-            }
-          `}
-          onClick={() => setShowPrivateLayer(prev => !prev)}
-          >
-            {showPrivateLayer ? 'PRIVATE' : 'PUBLIC'}
-          </div>
-        </div>
-      )}
       
       {/* Export - Mobile always shows, desktop on hover */}
       <div className={`absolute ${mobile ? 'opacity-100 -bottom-6' : 'opacity-0 hover:opacity-100 -bottom-8'} left-1/2 transform -translate-x-1/2 transition-opacity duration-200`}>

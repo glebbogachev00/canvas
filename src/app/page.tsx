@@ -39,6 +39,7 @@ export default function Home() {
 
   const [audioFile, setAudioFile] = useState<File | null>(null)
   const [theme, setTheme] = useState<AppTheme>('white')
+  const [showPrivateLayer, setShowPrivateLayer] = useState(false)
   const canvasRef = useRef<any>(null)
 
   const updateParameters = (newParams: Partial<GenerationParameters>) => {
@@ -99,6 +100,8 @@ export default function Home() {
               parameters={parameters}
               onChange={updateParameters}
               theme={theme}
+              showPrivateLayer={showPrivateLayer}
+              onLayerToggle={setShowPrivateLayer}
             />
           </div>
           <div className="mt-8">
@@ -120,6 +123,8 @@ export default function Home() {
             audioFile={audioFile}
             onParametersChange={updateParameters}
             theme={theme}
+            showPrivateLayer={showPrivateLayer}
+            onLayerToggle={setShowPrivateLayer}
           />
         </div>
 
@@ -173,6 +178,8 @@ export default function Home() {
             onParametersChange={updateParameters}
             theme={theme}
             mobile={true}
+            showPrivateLayer={showPrivateLayer}
+            onLayerToggle={setShowPrivateLayer}
           />
         </div>
 
@@ -185,6 +192,8 @@ export default function Home() {
             onChange={updateParameters}
             theme={theme}
             mobile={true}
+            showPrivateLayer={showPrivateLayer}
+            onLayerToggle={setShowPrivateLayer}
           />
           
           {/* Audio in mobile controls */}
