@@ -44,26 +44,18 @@ export default function CryptoDisplay({ parameters, theme }: CryptoDisplayProps)
   }
 
   const getPositionClasses = () => {
-    switch (parameters.cornerPosition) {
-      case 'topLeft':
-        return 'top-4 left-4'
-      case 'topRight':
-        return 'top-4 right-4'
-      case 'bottomRight':
-        return 'bottom-4 right-4'
-      default:
-        return 'bottom-4 left-4' // Default to bottom left for signature
-    }
+    // Always use bottom left corner for digital signature
+    return 'bottom-2 left-2'
   }
 
   return (
     <div className={`absolute ${getPositionClasses()} z-20 pointer-events-none`}>
       <div className={`
-        px-3 py-1 font-mono text-xs tracking-wide
-        transition-all duration-300 backdrop-blur-sm
+        font-mono text-[8px] tracking-tight opacity-60
+        transition-all duration-300
         ${theme === 'black' 
-          ? 'text-white/80 bg-black/10 border-l-2 border-white/20' 
-          : 'text-black/70 bg-white/10 border-l-2 border-black/20'
+          ? 'text-white/60' 
+          : 'text-black/50'
         }
       `}>
         {cryptoCode}
