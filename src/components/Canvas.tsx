@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle } from 'react'
 import type { GenerationParameters, AppTheme } from '@/app/page'
 import { generateHash } from '@/lib/crypto'
 import { generateLinear, generateTexture, generateGeometric } from '@/lib/generators'
@@ -14,13 +14,49 @@ interface CanvasProps {
   mobile?: boolean
 }
 
-export default function Canvas({ parameters, audioFile, onParametersChange, theme, mobile = false }: CanvasProps) {
+const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ parameters, audioFile, onParametersChange, theme, mobile = false }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [hash, setHash] = useState<string>('')
   const [audioData, setAudioData] = useState<AudioFrequencyData | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
   const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null)
   const animationFrameRef = useRef<number>()
+
+  const handleExport = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    // Create a new canvas with frame and hash
+    const exportCanvas = document.createElement('canvas')
+    const exportCtx = exportCanvas.getContext('2d')
+    if (!exportCtx) return
+    const frameWidth = 32
+    const totalSize = parameters.canvasSize + (frameWidth * 2)
+    
+    exportCanvas.width = totalSize
+    exportCanvas.height = totalSize
+    
+    // Draw frame
+    exportCtx.fillStyle = theme === 'black' ? '#000000' : '#FFFFFF'
+    exportCtx.fillRect(0, 0, totalSize, totalSize)
+    
+    // Draw the artwork in center
+    exportCtx.drawImage(canvas, frameWidth, frameWidth)
+    
+    // Draw hash in corner
+    exportCtx.font = '10px monospace'
+    exportCtx.fillStyle = theme === 'black' ? '#FFFFFF' : '#000000'
+    exportCtx.fillText(hash.substring(0, 8), 8, totalSize - 8)
+    
+    // Download
+    const link = document.createElement('a')
+    link.download = `canvas-${hash.substring(0, 8)}.png`
+    link.href = exportCanvas.toDataURL()
+    link.click()
+  }
+
+  useImperativeHandle(ref, () => ({
+    handleExport
+  }))
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -168,44 +204,6 @@ export default function Canvas({ parameters, audioFile, onParametersChange, them
     lastMouseTime.current = now
   }
 
-  const handleExport = () => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    // Create a new canvas with frame and hash
-    const exportCanvas = document.createElement('canvas')
-    const exportCtx = exportCanvas.getContext('2d')
-    if (!exportCtx) return
-
-    const frameWidth = 32
-    const totalSize = parameters.canvasSize + (frameWidth * 2)
-    
-    exportCanvas.width = totalSize
-    exportCanvas.height = totalSize
-
-    // Draw white frame
-    exportCtx.fillStyle = '#FFFFFF'
-    exportCtx.fillRect(0, 0, totalSize, totalSize)
-
-    // Draw border
-    exportCtx.strokeStyle = '#E5E5E5'
-    exportCtx.lineWidth = 1
-    exportCtx.strokeRect(frameWidth - 0.5, frameWidth - 0.5, parameters.canvasSize + 1, parameters.canvasSize + 1)
-
-    // Draw main canvas content
-    exportCtx.drawImage(canvas, frameWidth, frameWidth)
-
-    // Draw hash in bottom-left corner
-    exportCtx.fillStyle = '#0A0A0A'
-    exportCtx.font = '10px Menlo, Monaco, monospace'
-    exportCtx.fillText(hash.substring(0, 12), frameWidth + 8, totalSize - 8)
-
-    // Download
-    const link = document.createElement('a')
-    link.download = `canvas-${hash.substring(0, 8)}.png`
-    link.href = exportCanvas.toDataURL()
-    link.click()
-  }
 
   const sizeOptions = [256, 512, 1024]
 
@@ -256,4 +254,8 @@ export default function Canvas({ parameters, audioFile, onParametersChange, them
       </div>
     </div>
   )
-}
+})
+
+Canvas.displayName = 'Canvas'
+
+export default Canvas

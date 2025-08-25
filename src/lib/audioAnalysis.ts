@@ -2,7 +2,7 @@ export class AudioAnalyzer {
   private audioContext: AudioContext | null = null
   private analyserNode: AnalyserNode | null = null
   private sourceNode: MediaElementAudioSourceNode | null = null
-  private dataArray: Uint8Array | null = null
+  private dataArray: Uint8Array<ArrayBuffer> | null = null
   private isInitialized = false
 
   async initialize(audioElement: HTMLAudioElement): Promise<boolean> {
@@ -28,7 +28,7 @@ export class AudioAnalyzer {
       this.analyserNode.connect(this.audioContext.destination)
 
       // Create data array for frequency data
-      this.dataArray = new Uint8Array(this.analyserNode.frequencyBinCount)
+      this.dataArray = new Uint8Array(this.analyserNode.frequencyBinCount) as Uint8Array<ArrayBuffer>
 
       this.isInitialized = true
       return true
