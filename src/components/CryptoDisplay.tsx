@@ -52,11 +52,7 @@ export default function CryptoDisplay({ parameters, theme }: CryptoDisplayProps)
     <div className={`absolute ${getPositionClasses()} z-20 pointer-events-none`}>
       <div className={`
         font-mono text-[8px] tracking-tight opacity-60
-        transition-all duration-300
-        ${theme === 'black' 
-          ? 'text-white/60' 
-          : 'text-black/50'
-        }
+        transition-all duration-300 text-black
       `}>
         {cryptoCode}
       </div>
