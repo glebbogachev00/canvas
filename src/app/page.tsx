@@ -93,12 +93,21 @@ export default function Home() {
       {/* Desktop Layout */}
       <div className="hidden md:flex min-h-screen">
         {/* Left Panel - 30% */}
-        <div className="w-[30%] p-12 flex flex-col justify-center">
-          <ParameterControls 
-            parameters={parameters}
-            onChange={updateParameters}
-            theme={theme}
-          />
+        <div className="w-[30%] p-12 flex flex-col">
+          <div className="flex-1 flex flex-col justify-center">
+            <ParameterControls 
+              parameters={parameters}
+              onChange={updateParameters}
+              theme={theme}
+            />
+          </div>
+          <div className="mt-8">
+            <AudioAccordion
+              audioFile={audioFile}
+              onFileChange={setAudioFile}
+              theme={theme}
+            />
+          </div>
         </div>
 
         {/* Center Panel - 60% */}
@@ -115,12 +124,8 @@ export default function Home() {
         </div>
 
         {/* Right Panel - 10% */}
-        <div className="w-[10%] p-6 flex flex-col justify-center">
-          <AudioAccordion
-            audioFile={audioFile}
-            onFileChange={setAudioFile}
-            theme={theme}
-          />
+        <div className="w-[10%] p-6 flex flex-col justify-end">
+          {/* Reserved for future features */}
         </div>
       </div>
 

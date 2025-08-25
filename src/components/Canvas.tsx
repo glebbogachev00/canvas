@@ -4,7 +4,9 @@ import { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHand
 import type { GenerationParameters, AppTheme } from '@/app/page'
 import { generateHash } from '@/lib/crypto'
 import { generateLinear, generateTexture, generateGeometric } from '@/lib/generators'
+import { CryptoEnhanced } from '@/lib/cryptoEnhanced'
 import { AudioAnalyzer, type AudioFrequencyData } from '@/lib/audioAnalysis'
+import CryptoDisplay from './CryptoDisplay'
 
 interface CanvasProps {
   parameters: GenerationParameters
@@ -19,6 +21,8 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
   const [hash, setHash] = useState<string>('')
   const [audioData, setAudioData] = useState<AudioFrequencyData | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [showPrivateLayer, setShowPrivateLayer] = useState(false)
+  const [layeredData, setLayeredData] = useState<any>(null)
   const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null)
   const animationFrameRef = useRef<number>()
 
@@ -77,19 +81,55 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
     const newHash = generateHash(parameters)
     setHash(newHash)
 
-    // Generate artwork based on pattern type
-    switch (parameters.patternType) {
-      case 'linear':
-        generateLinear(ctx, parameters, audioData)
-        break
-      case 'texture':
-        generateTexture(ctx, parameters, audioData)
-        break
-      case 'geometric':
-        generateGeometric(ctx, parameters, audioData)
-        break
+    // Handle signature mode with layered rendering
+    if (parameters.encryptionType === 'signature') {
+      // Generate layered data for signature mode
+      const layers = CryptoEnhanced.generateLayeredData(parameters)
+      setLayeredData(layers)
+
+      // Choose which layer to render based on showPrivateLayer state
+      const activeLayer = showPrivateLayer ? layers.privateLayer : layers.publicLayer
+      const layerParameters = {
+        ...parameters,
+        ...activeLayer
+      }
+
+      // Render the active layer
+      switch (parameters.patternType) {
+        case 'linear':
+          generateLinear(ctx, layerParameters, audioData)
+          break
+        case 'texture':
+          generateTexture(ctx, layerParameters, audioData)
+          break
+        case 'geometric':
+          generateGeometric(ctx, layerParameters, audioData)
+          break
+      }
+
+      // Add layer indicator
+      if (showPrivateLayer) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.1)'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#FF0000'
+        ctx.font = '12px monospace'
+        ctx.fillText('PRIVATE LAYER', 10, canvas.height - 20)
+      }
+    } else {
+      // Standard rendering for non-signature modes
+      switch (parameters.patternType) {
+        case 'linear':
+          generateLinear(ctx, parameters, audioData)
+          break
+        case 'texture':
+          generateTexture(ctx, parameters, audioData)
+          break
+        case 'geometric':
+          generateGeometric(ctx, parameters, audioData)
+          break
+      }
     }
-  }, [parameters, audioData])
+  }, [parameters, audioData, showPrivateLayer])
 
   const [lastClickTime, setLastClickTime] = useState(0)
   const [mouseVelocity, setMouseVelocity] = useState(0)
@@ -174,10 +214,15 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
     const now = Date.now()
     const timeDiff = now - lastClickTime
     
-    // Double-click detection (within 400ms)
-    if (timeDiff < 400 && onParametersChange) {
-      const newSeed = Math.random().toString(36).substring(7)
-      onParametersChange({ seed: newSeed })
+    // In signature mode, single click toggles layers
+    if (parameters.encryptionType === 'signature') {
+      setShowPrivateLayer(prev => !prev)
+    } else {
+      // Double-click detection (within 400ms) for other modes
+      if (timeDiff < 400 && onParametersChange) {
+        const newSeed = Math.random().toString(36).substring(7)
+        onParametersChange({ seed: newSeed })
+      }
     }
     
     setLastClickTime(now)
@@ -232,12 +277,30 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
         }}
       />
       
-      {/* SHA256 hash - Theme-aware minimal display */}
-      <div className={`absolute bottom-2 left-2 text-[9px] font-mono select-all transition-colors duration-300 ${
-        theme === 'black' ? 'text-gray-600' : 'text-gray-300'
-      }`}>
-        {hash.substring(0, 8)}
-      </div>
+      {/* Crypto signature display - visible and bold */}
+      <CryptoDisplay parameters={parameters} theme={theme} />
+      
+      {/* Layer indicator for signature mode */}
+      {parameters.encryptionType === 'signature' && (
+        <div className="absolute bottom-4 left-4 z-20">
+          <div className={`
+            px-3 py-2 rounded-md font-bold text-xs tracking-wide uppercase
+            transition-all duration-300 shadow-lg backdrop-blur-sm cursor-pointer
+            ${showPrivateLayer 
+              ? theme === 'black' 
+                ? 'bg-red-500/90 text-white border border-red-400/50' 
+                : 'bg-red-600/90 text-white border border-red-500/50'
+              : theme === 'black' 
+                ? 'bg-green-500/90 text-white border border-green-400/50' 
+                : 'bg-green-600/90 text-white border border-green-500/50'
+            }
+          `}
+          onClick={() => setShowPrivateLayer(prev => !prev)}
+          >
+            {showPrivateLayer ? 'PRIVATE' : 'PUBLIC'}
+          </div>
+        </div>
+      )}
       
       {/* Export - Mobile always shows, desktop on hover */}
       <div className={`absolute ${mobile ? 'opacity-100 -bottom-6' : 'opacity-0 hover:opacity-100 -bottom-8'} left-1/2 transform -translate-x-1/2 transition-opacity duration-200`}>

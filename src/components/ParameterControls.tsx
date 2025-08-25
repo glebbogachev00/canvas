@@ -195,6 +195,17 @@ export default function ParameterControls({ parameters, onChange, theme, mobile 
           >
             regenerate
           </button>
+          
+          {parameters.encryptionType === 'signature' && (
+            <div className={`text-xs font-light ${
+              theme === 'black' ? 'text-gray-600' : 'text-gray-400'
+            }`}>
+              <div className="mb-2">signature mode active:</div>
+              <div>• click canvas to toggle layers</div>
+              <div>• public/private key encryption</div>
+              <div>• enhanced complexity layering</div>
+            </div>
+          )}
         </div>
       </AccordionSection>
     </AccordionContainer>
