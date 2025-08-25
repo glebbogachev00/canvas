@@ -7,7 +7,7 @@ import AudioControls from '@/components/AudioControls'
 import AudioAccordion from '@/components/AudioAccordion'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 
-export type PatternType = 'linear' | 'texture' | 'geometric'
+export type PatternType = 'linear' | 'texture' | 'geometric' | 'matrix'
 export type ColorScheme = 'monochrome' | 'grayscale' | 'accent'
 export type EncryptionType = 'binary' | 'hash' | 'cipher' | 'signature'
 export type CornerPosition = 'topRight' | 'topLeft' | 'bottomRight'

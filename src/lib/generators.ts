@@ -334,3 +334,85 @@ export function generateGeometric(ctx: CanvasRenderingContext2D, params: Generat
   
   ctx.globalAlpha = 1
 }
+
+export function generateMatrix(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
+  const { canvasSize, complexity, colorScheme, seed } = params
+  const { bits, hasText } = getBinaryData(params)
+  const enhancedSeed = generateTextSeed(params.textInput || '', seed)
+  const rng = new SeededRandom(enhancedSeed)
+  
+  // Matrix rain characters - mix of binary, letters, and symbols
+  const matrixChars = ['0', '1', '~', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+  
+  // If we have text input, prioritize binary representation
+  const displayChars = hasText ? ['0', '1', '~', ' '] : matrixChars
+  
+  // Set up font
+  const fontSize = Math.floor(8 + complexity * 12) // 8px to 20px based on complexity
+  ctx.font = `${fontSize}px 'Courier New', monospace`
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'top'
+  
+  // Get color based on scheme
+  const getColor = (intensity: number = 1) => {
+    switch (colorScheme) {
+      case 'monochrome':
+        return `rgba(10, 10, 10, ${intensity})`
+      case 'grayscale':
+        const gray = Math.floor(intensity * 128)
+        return `rgba(${gray}, ${gray}, ${gray}, ${intensity})`
+      case 'accent':
+        return intensity > 0.8 ? `rgba(255, 107, 53, ${intensity})` : `rgba(10, 10, 10, ${intensity})`
+      default:
+        return `rgba(10, 10, 10, ${intensity})`
+    }
+  }
+  
+  // Calculate grid
+  const charWidth = fontSize * 0.6
+  const charHeight = fontSize * 1.2
+  const cols = Math.floor(canvasSize / charWidth)
+  const rows = Math.floor(canvasSize / charHeight)
+  
+  // Audio reactivity
+  const audioBoost = audioData ? (audioData.bass + audioData.mid) / 2 : 0
+  const totalIntensity = complexity + audioBoost * 0.5
+  
+  // Static background pattern (like the screenshot)
+  const bgDensity = totalIntensity * 0.8
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      if (rng.next() < bgDensity) {
+        const x = col * charWidth
+        const y = row * charHeight
+        
+        // Choose character based on text input
+        let char
+        if (hasText && bits.length > 0) {
+          const bitIndex = (row * cols + col) % bits.length
+          char = String(bits[bitIndex])
+        } else {
+          char = matrixChars[Math.floor(rng.next() * matrixChars.length)]
+        }
+        
+        // Fade intensity based on position and randomness
+        const intensity = 0.15 + rng.next() * 0.6
+        ctx.fillStyle = getColor(intensity)
+        ctx.fillText(char, x, y)
+      }
+    }
+  }
+  
+  // Add subtle noise pattern for enhanced texture
+  if (complexity > 0.4) {
+    const noiseIntensity = (complexity - 0.4) * 0.3
+    for (let i = 0; i < canvasSize * noiseIntensity; i++) {
+      const x = rng.next() * canvasSize
+      const y = rng.next() * canvasSize
+      const char = matrixChars[Math.floor(rng.next() * matrixChars.length)]
+      
+      ctx.fillStyle = getColor(0.05 + rng.next() * 0.2)
+      ctx.fillText(char, x, y)
+    }
+  }
+}

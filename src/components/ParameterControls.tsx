@@ -31,7 +31,7 @@ export default function ParameterControls({ parameters, onChange, theme, mobile 
       {/* Pattern Selection */}
       <AccordionSection title="Pattern" theme={theme}>
         <div className="space-y-3">
-          {(['linear', 'texture', 'geometric'] as PatternType[]).map(type => (
+          {(['linear', 'texture', 'geometric', 'matrix'] as PatternType[]).map(type => (
             <button
               key={type}
               onClick={() => updateParameter('patternType', type)}
