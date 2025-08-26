@@ -36,7 +36,7 @@ export default function ParameterControls({ parameters, onChange, theme, mobile 
             placeholder="Enter text..."
             value={parameters.textInput || ''}
             onChange={(e) => updateParameter('textInput', e.target.value)}
-            className={`w-full bg-transparent border-b border-opacity-20 border-current pb-1 text-sm font-mono placeholder-opacity-50 focus:outline-none focus:border-opacity-40 ${
+            className={`w-full bg-transparent border-none text-sm font-mono placeholder-opacity-50 focus:outline-none ${
               theme === 'black' 
                 ? 'text-white placeholder-gray-500' 
                 : 'text-black placeholder-gray-400'
