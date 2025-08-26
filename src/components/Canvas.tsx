@@ -76,8 +76,8 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
     canvas.width = parameters.canvasSize
     canvas.height = parameters.canvasSize
 
-    // Clear canvas with white background
-    ctx.fillStyle = '#FFFFFF'
+    // Clear canvas with theme-appropriate background
+    ctx.fillStyle = theme === 'black' ? '#000000' : '#FFFFFF'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     // Generate hash from parameters
@@ -138,7 +138,7 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
           break
       }
     }
-  }, [parameters, audioData, showPrivateLayer])
+  }, [parameters, audioData, showPrivateLayer, theme])
 
   const [lastClickTime, setLastClickTime] = useState(0)
   const [mouseVelocity, setMouseVelocity] = useState(0)
@@ -192,11 +192,19 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
       }
     }
 
+    // For movement mode, update the seed slightly to create animation
+    if (parameters.movement && onParametersChange) {
+      const timeOffset = Date.now() * 0.001 // Slow animation
+      const animatedSeed = parameters.seed + timeOffset.toString()
+      // This will trigger a redraw through the main useEffect
+      onParametersChange({ seed: animatedSeed })
+    }
+
     // Continue animation if movement is enabled or we have audio
     if (parameters.movement || audioFile) {
       animationFrameRef.current = requestAnimationFrame(animationLoop)
     }
-  }, [isAnimating, audioFile, parameters.movement])
+  }, [isAnimating, audioFile, parameters.movement, parameters.seed, onParametersChange])
 
   // Start/stop animation based on movement toggle
   useEffect(() => {
