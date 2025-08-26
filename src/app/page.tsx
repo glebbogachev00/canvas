@@ -101,8 +101,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Center Panel - 60% */}
-        <div className={`w-[60%] flex items-center justify-center transition-colors duration-500 ${
+        {/* Canvas Panel - 70% */}
+        <div className={`w-[70%] flex items-center justify-center transition-colors duration-500 ${
           theme === 'black' ? 'bg-gray-900' : 'bg-gray-50'
         }`}>
           <Canvas 
@@ -114,11 +114,6 @@ export default function Home() {
             showPrivateLayer={showPrivateLayer}
             onLayerToggle={setShowPrivateLayer}
           />
-        </div>
-
-        {/* Right Panel - 10% */}
-        <div className="w-[10%] p-6 flex flex-col justify-end">
-          {/* Reserved for future features */}
         </div>
       </div>
 
