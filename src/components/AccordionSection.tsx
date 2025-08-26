@@ -51,28 +51,14 @@ export default function AccordionSection({
         <span className="text-xs font-medium uppercase tracking-wider">
           {title}
         </span>
-        <div className={`transform transition-transform duration-200 ${
-          isOpen ? 'rotate-90' : 'rotate-0'
+        <div className={`font-mono text-sm transition-all duration-200 ${
+          isOpen ? 'rotate-45' : 'rotate-0'
+        } ${
+          theme === 'black'
+            ? 'text-gray-600 group-hover:text-white'
+            : 'text-gray-400 group-hover:text-black'
         }`}>
-          <svg
-            width="8"
-            height="8"
-            viewBox="0 0 8 8"
-            fill="none"
-            className={`transition-colors duration-200 ${
-              theme === 'black'
-                ? 'text-gray-600 group-hover:text-white'
-                : 'text-gray-400 group-hover:text-black'
-            }`}
-          >
-            <path
-              d="M2 1L6 4L2 7"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          +
         </div>
       </button>
 

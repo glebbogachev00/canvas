@@ -67,30 +67,16 @@ export default function Home() {
         </h1>
       </div>
 
-      {/* Theme switcher - bracket style in top right - desktop only */}
+      {/* Theme switcher - toggle style in top right - desktop only */}
       <div className="absolute top-6 right-6 z-10 hidden md:block">
-        <div className="flex gap-4">
-          <button
-            onClick={() => setTheme('white')}
-            className={`text-sm font-mono transition-all duration-300 ${
-              theme === 'white' 
-                ? theme === 'black' ? 'text-white' : 'text-black'
-                : 'text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            [white]
-          </button>
-          <button
-            onClick={() => setTheme('black')}
-            className={`text-sm font-mono transition-all duration-300 ${
-              theme === 'black' 
-                ? theme === 'black' ? 'text-white' : 'text-black'
-                : 'text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            [black]
-          </button>
-        </div>
+        <button
+          onClick={() => setTheme(theme === 'white' ? 'black' : 'white')}
+          className={`text-sm font-mono transition-all duration-300 ${
+            theme === 'black' ? 'text-white hover:text-gray-300' : 'text-black hover:text-gray-600'
+          }`}
+        >
+          [{theme}]
+        </button>
       </div>
 
       {/* Desktop Layout */}
@@ -148,28 +134,14 @@ export default function Home() {
             }`}>
               [canvas] - interactive creation
             </h1>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setTheme('white')}
-                className={`text-xs font-mono transition-all duration-300 ${
-                  theme === 'white' 
-                    ? theme === 'black' ? 'text-white' : 'text-black'
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                [white]
-              </button>
-              <button
-                onClick={() => setTheme('black')}
-                className={`text-xs font-mono transition-all duration-300 ${
-                  theme === 'black' 
-                    ? theme === 'black' ? 'text-white' : 'text-black'
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                [black]
-              </button>
-            </div>
+            <button
+              onClick={() => setTheme(theme === 'white' ? 'black' : 'white')}
+              className={`text-xs font-mono transition-all duration-300 ${
+                theme === 'black' ? 'text-white hover:text-gray-300' : 'text-black hover:text-gray-600'
+              }`}
+            >
+              [{theme}]
+            </button>
           </div>
         </div>
 
