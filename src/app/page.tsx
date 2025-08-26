@@ -15,7 +15,6 @@ export type AppTheme = 'white' | 'black'
 
 export interface GenerationParameters {
   patternType: PatternType
-  movement: boolean
   colorScheme: ColorScheme
   seed: string
   canvasSize: number
@@ -27,7 +26,6 @@ export interface GenerationParameters {
 export default function Home() {
   const [parameters, setParameters] = useState<GenerationParameters>({
     patternType: 'linear',
-    movement: false,
     colorScheme: 'blackWhite',
     seed: Math.random().toString(36).substring(7),
     canvasSize: 512,

@@ -94,26 +94,6 @@ export default function ParameterControls({ parameters, onChange, theme, mobile 
             </select>
           </div>
 
-          {/* Movement */}
-          <div className="space-y-2">
-            <div className={`text-xs font-mono uppercase tracking-wide ${
-              theme === 'black' ? 'text-gray-400' : 'text-gray-500'
-            }`}>
-              Movement
-            </div>
-            <select
-              value={parameters.movement ? 'flowing' : 'static'}
-              onChange={(e) => updateParameter('movement', e.target.value === 'flowing')}
-              className={`w-full bg-transparent border-none text-sm font-mono focus:outline-none cursor-pointer ${
-                theme === 'black' 
-                  ? 'text-white' 
-                  : 'text-black'
-              }`}
-            >
-              <option value="static">Static</option>
-              <option value="flowing">Flowing</option>
-            </select>
-          </div>
         </div>
       </AccordionSection>
 

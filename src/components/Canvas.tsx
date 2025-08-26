@@ -22,12 +22,10 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [hash, setHash] = useState<string>('')
   const [audioData, setAudioData] = useState<AudioFrequencyData | null>(null)
-  const [isAnimating, setIsAnimating] = useState(false)
   // Use external showPrivateLayer if provided, otherwise use internal state
   const showPrivateLayer = externalShowPrivateLayer ?? false
   const [layeredData, setLayeredData] = useState<any>(null)
   const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null)
-  const animationFrameRef = useRef<number>()
 
   const handleExport = () => {
     const canvas = canvasRef.current
@@ -180,52 +178,6 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
     }
   }, [audioFile])
 
-  // Animation loop for movement and audio reactivity
-  const animationLoop = useCallback(() => {
-    if (!isAnimating && !audioFile) return
-
-    // Get audio data if available
-    if (audioAnalyzerRef.current) {
-      const newAudioData = audioAnalyzerRef.current.getFrequencyData()
-      if (newAudioData) {
-        setAudioData(newAudioData)
-      }
-    }
-
-    // For movement mode, update the seed slightly to create animation
-    if (parameters.movement && onParametersChange) {
-      const timeOffset = Date.now() * 0.001 // Slow animation
-      const animatedSeed = parameters.seed + timeOffset.toString()
-      // This will trigger a redraw through the main useEffect
-      onParametersChange({ seed: animatedSeed })
-    }
-
-    // Continue animation if movement is enabled or we have audio
-    if (parameters.movement || audioFile) {
-      animationFrameRef.current = requestAnimationFrame(animationLoop)
-    }
-  }, [isAnimating, audioFile, parameters.movement, parameters.seed, onParametersChange])
-
-  // Start/stop animation based on movement toggle
-  useEffect(() => {
-    const shouldAnimate = parameters.movement || !!audioFile
-    
-    if (shouldAnimate && !isAnimating) {
-      setIsAnimating(true)
-      animationLoop()
-    } else if (!shouldAnimate && isAnimating) {
-      setIsAnimating(false)
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-    }
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-    }
-  }, [parameters.movement, audioFile, isAnimating, animationLoop])
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     const now = Date.now()
