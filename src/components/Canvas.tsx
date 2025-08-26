@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle } from 'react'
 import type { GenerationParameters, AppTheme } from '@/app/page'
 import { generateHash } from '@/lib/crypto'
-import { generateLinear, generateTexture, generateGeometric, generateMatrix } from '@/lib/generators'
+import { generateLinear, generateTexture, generateMatrix, generateASCII } from '@/lib/generators'
 import { CryptoEnhanced } from '@/lib/cryptoEnhanced'
 import { AudioAnalyzer, type AudioFrequencyData } from '@/lib/audioAnalysis'
 import CryptoDisplay from './CryptoDisplay'
@@ -105,11 +105,11 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
         case 'texture':
           generateTexture(ctx, layerParameters, audioData)
           break
-        case 'geometric':
-          generateGeometric(ctx, layerParameters, audioData)
-          break
         case 'matrix':
           generateMatrix(ctx, layerParameters, audioData)
+          break
+        case 'ascii':
+          generateASCII(ctx, layerParameters, audioData)
           break
       }
 
@@ -130,11 +130,11 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
         case 'texture':
           generateTexture(ctx, parameters, audioData)
           break
-        case 'geometric':
-          generateGeometric(ctx, parameters, audioData)
-          break
         case 'matrix':
           generateMatrix(ctx, parameters, audioData)
+          break
+        case 'ascii':
+          generateASCII(ctx, parameters, audioData)
           break
       }
     }

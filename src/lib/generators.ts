@@ -33,7 +33,8 @@ function noise(x: number, seed: number = 0): number {
 }
 
 export function generateLinear(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
-  const { canvasSize, complexity, colorScheme, seed } = params
+  const { canvasSize, colorScheme, seed } = params
+  const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
   const enhancedSeed = generateTextSeed(params.textInput || '', seed)
   const rng = new SeededRandom(enhancedSeed)
@@ -41,15 +42,15 @@ export function generateLinear(ctx: CanvasRenderingContext2D, params: Generation
   // Set color based on scheme
   const getColor = () => {
     switch (colorScheme) {
-      case 'monochrome':
-        return '#0A0A0A'
+      case 'blackWhite':
+        return rng.next() > 0.5 ? '#000000' : '#FFFFFF'
       case 'grayscale':
-        const gray = Math.floor(rng.next() * 128)
+        const gray = Math.floor(rng.next() * 256)
         return `rgb(${gray}, ${gray}, ${gray})`
-      case 'accent':
-        return rng.next() > 0.8 ? '#FF6B35' : '#0A0A0A'
+      case 'saturatedRed':
+        return rng.next() > 0.7 ? '#FF0000' : '#000000'
       default:
-        return '#0A0A0A'
+        return '#000000'
     }
   }
 
@@ -127,7 +128,8 @@ export function generateLinear(ctx: CanvasRenderingContext2D, params: Generation
 }
 
 export function generateTexture(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
-  const { canvasSize, complexity, colorScheme, seed } = params
+  const { canvasSize, colorScheme, seed } = params
+  const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
   const enhancedSeed = generateTextSeed(params.textInput || '', seed)
   const rng = new SeededRandom(enhancedSeed)
@@ -138,15 +140,15 @@ export function generateTexture(ctx: CanvasRenderingContext2D, params: Generatio
   
   const getColor = () => {
     switch (colorScheme) {
-      case 'monochrome':
-        return '#0A0A0A'
+      case 'blackWhite':
+        return rng.next() > 0.5 ? '#000000' : '#FFFFFF'
       case 'grayscale':
-        const gray = Math.floor(50 + rng.next() * 150)
+        const gray = Math.floor(50 + rng.next() * 200)
         return `rgb(${gray}, ${gray}, ${gray})`
-      case 'accent':
-        return rng.next() > 0.7 ? '#FF6B35' : '#0A0A0A'
+      case 'saturatedRed':
+        return rng.next() > 0.7 ? '#FF0000' : '#000000'
       default:
-        return '#0A0A0A'
+        return '#000000'
     }
   }
 
@@ -233,110 +235,100 @@ export function generateTexture(ctx: CanvasRenderingContext2D, params: Generatio
   ctx.globalAlpha = 1
 }
 
-export function generateGeometric(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
-  const { canvasSize, complexity, colorScheme, seed } = params
+export function generateMatrix(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
+  const { canvasSize, colorScheme, seed } = params
+  const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
   const enhancedSeed = generateTextSeed(params.textInput || '', seed)
   const rng = new SeededRandom(enhancedSeed)
   
-  const center = { x: canvasSize / 2, y: canvasSize / 2 }
-  const maxRadius = canvasSize * 0.4
-  const shapeCount = Math.floor(10 + (50 * complexity))
+  // Grid-based network pattern
+  const gridSize = Math.floor(20 + complexity * 30)
+  const nodeChance = 0.3 + complexity * 0.4
+  const connectionChance = 0.2 + complexity * 0.3
   
   const getColor = () => {
     switch (colorScheme) {
-      case 'monochrome':
-        return '#0A0A0A'
+      case 'blackWhite':
+        return rng.next() > 0.5 ? '#000000' : '#FFFFFF'
       case 'grayscale':
-        const gray = Math.floor(rng.next() * 200)
+        const gray = Math.floor(rng.next() * 256)
         return `rgb(${gray}, ${gray}, ${gray})`
-      case 'accent':
-        return rng.next() > 0.6 ? '#FF6B35' : '#0A0A0A'
+      case 'saturatedRed':
+        return rng.next() > 0.7 ? '#FF0000' : '#000000'
       default:
-        return '#0A0A0A'
+        return '#000000'
     }
   }
 
-  // Generate radial polygon arrangements
-  for (let i = 0; i < shapeCount; i++) {
-    const progress = i / shapeCount
-    let angle = progress * Math.PI * 2 * (2 + complexity * 3) // Multiple rotations
-    let radius = (rng.next() * 0.5 + 0.2) * maxRadius * (0.3 + complexity * 0.7)
-    
-    // Binary data influences positioning
-    if (hasText && bits.length > 0) {
-      const bitIndex = Math.floor((i / shapeCount) * bits.length)
-      const bitValue = bits[bitIndex] || 0
-      angle *= (0.5 + bitValue * 1.0) // 0s compress angles, 1s expand them
-      radius *= (0.6 + bitValue * 0.8) // 0s pull inward, 1s push outward
-    }
-    
-    const x = center.x + Math.cos(angle) * radius
-    const y = center.y + Math.sin(angle) * radius
-    
-    // Draw polygon - binary data affects shape
-    let sides = 3 + Math.floor(rng.next() * 5)
-    let size = 3 + (rng.next() * 15 * complexity)
-    
-    // Use binary data to influence polygon complexity
-    if (hasText && bits.length > 0) {
-      const bitIndex = Math.floor((i / shapeCount) * bits.length)
-      const bitValue = bits[bitIndex] || 0
-      sides = bitValue === 1 ? Math.max(sides, 6) : Math.min(sides, 4) // 1s = more complex, 0s = simpler
-      size *= (0.5 + bitValue * 0.8)
-    }
-    
-    const rotation = rng.next() * Math.PI * 2
-    
-    ctx.fillStyle = getColor()
-    ctx.globalAlpha = 0.3 + (rng.next() * 0.5)
-    
-    ctx.beginPath()
-    for (let j = 0; j < sides; j++) {
-      const vertexAngle = (j / sides) * Math.PI * 2 + rotation
-      const vertexX = x + Math.cos(vertexAngle) * size
-      const vertexY = y + Math.sin(vertexAngle) * size
+  // Create grid nodes
+  const nodes: { x: number; y: number; active: boolean }[] = []
+  const cols = Math.floor(canvasSize / gridSize)
+  const rows = Math.floor(canvasSize / gridSize)
+  
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = col * gridSize + gridSize / 2
+      const y = row * gridSize + gridSize / 2
+      let active = rng.next() < nodeChance
       
-      if (j === 0) {
-        ctx.moveTo(vertexX, vertexY)
-      } else {
-        ctx.lineTo(vertexX, vertexY)
+      // Binary data influences node activation
+      if (hasText && bits.length > 0) {
+        const nodeIndex = row * cols + col
+        const bitIndex = nodeIndex % bits.length
+        const bitValue = bits[bitIndex] || 0
+        active = bitValue === 1 || (bitValue === 0 && rng.next() < 0.3)
+      }
+      
+      nodes.push({ x, y, active })
+    }
+  }
+
+  // Draw connections between nearby active nodes
+  ctx.strokeStyle = getColor()
+  ctx.lineWidth = 1
+  ctx.globalAlpha = 0.4
+  
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    if (!node.active) continue
+    
+    // Connect to nearby nodes
+    for (let j = i + 1; j < nodes.length; j++) {
+      const otherNode = nodes[j]
+      if (!otherNode.active) continue
+      
+      const dx = otherNode.x - node.x
+      const dy = otherNode.y - node.y
+      const distance = Math.sqrt(dx * dx + dy * dy)
+      
+      // Only connect nearby nodes
+      if (distance < gridSize * 2.5 && rng.next() < connectionChance) {
+        ctx.beginPath()
+        ctx.moveTo(node.x, node.y)
+        ctx.lineTo(otherNode.x, otherNode.y)
+        ctx.stroke()
       }
     }
-    ctx.closePath()
-    ctx.fill()
   }
 
-  // Add connecting lines for mandala effect
-  if (complexity > 0.3) {
-    ctx.strokeStyle = getColor()
-    ctx.lineWidth = 0.5
-    ctx.globalAlpha = 0.2
-    
-    const connectionCount = Math.floor(20 * complexity)
-    for (let i = 0; i < connectionCount; i++) {
-      const angle1 = rng.next() * Math.PI * 2
-      const angle2 = rng.next() * Math.PI * 2
-      const radius1 = rng.next() * maxRadius * 0.8
-      const radius2 = rng.next() * maxRadius * 0.8
-      
-      const x1 = center.x + Math.cos(angle1) * radius1
-      const y1 = center.y + Math.sin(angle1) * radius1
-      const x2 = center.x + Math.cos(angle2) * radius2
-      const y2 = center.y + Math.sin(angle2) * radius2
-      
+  // Draw nodes
+  ctx.globalAlpha = 0.8
+  for (const node of nodes) {
+    if (node.active) {
+      ctx.fillStyle = getColor()
       ctx.beginPath()
-      ctx.moveTo(x1, y1)
-      ctx.lineTo(x2, y2)
-      ctx.stroke()
+      ctx.arc(node.x, node.y, 2 + rng.next() * 3, 0, Math.PI * 2)
+      ctx.fill()
     }
   }
   
   ctx.globalAlpha = 1
 }
 
-export function generateMatrix(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
-  const { canvasSize, complexity, colorScheme, seed } = params
+export function generateASCII(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
+  const { canvasSize, colorScheme, seed } = params
+  const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
   const enhancedSeed = generateTextSeed(params.textInput || '', seed)
   const rng = new SeededRandom(enhancedSeed)
@@ -356,15 +348,15 @@ export function generateMatrix(ctx: CanvasRenderingContext2D, params: Generation
   // Get color based on scheme
   const getColor = (intensity: number = 1) => {
     switch (colorScheme) {
-      case 'monochrome':
-        return `rgba(10, 10, 10, ${intensity})`
+      case 'blackWhite':
+        return rng.next() > 0.5 ? `rgba(0, 0, 0, ${intensity})` : `rgba(255, 255, 255, ${intensity})`
       case 'grayscale':
-        const gray = Math.floor(intensity * 128)
+        const gray = Math.floor(intensity * 256)
         return `rgba(${gray}, ${gray}, ${gray}, ${intensity})`
-      case 'accent':
-        return intensity > 0.8 ? `rgba(255, 107, 53, ${intensity})` : `rgba(10, 10, 10, ${intensity})`
+      case 'saturatedRed':
+        return intensity > 0.7 ? `rgba(255, 0, 0, ${intensity})` : `rgba(0, 0, 0, ${intensity})`
       default:
-        return `rgba(10, 10, 10, ${intensity})`
+        return `rgba(0, 0, 0, ${intensity})`
     }
   }
   
