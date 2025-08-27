@@ -1,5 +1,5 @@
 import type { GenerationParameters } from '@/app/page'
-import { generateLinear, generateTexture, generateGeometric } from './generators'
+import { generateLinear, generateTexture, generateMatrix } from './generators'
 import { generateHash } from './crypto'
 
 interface BatchExportOptions {
@@ -53,8 +53,12 @@ export class BatchExporter {
           case 'texture':
             generateTexture(this.ctx, parameters)
             break
-          case 'geometric':
-            generateGeometric(this.ctx, parameters)
+          case 'matrix':
+            generateMatrix(this.ctx, parameters)
+            break
+          case 'ascii':
+            // Handle ascii pattern type
+            generateLinear(this.ctx, parameters)
             break
         }
 
@@ -85,8 +89,8 @@ export class BatchExporter {
 
     return {
       ...base,
-      complexity: this.varyValue(base.complexity, 0.1, 1.0, progress, random),
-      colorScheme: this.pickVariant(['monochrome', 'grayscale', 'accent'], base.colorScheme, random),
+      complexity: this.varyValue(base.complexity || 0.5, 0.1, 1.0, progress, random),
+      colorScheme: this.pickVariant(['blackWhite', 'grayscale', 'saturatedRed'], base.colorScheme, random),
       seed: `${base.seed}-${index}-${Math.floor(random() * 1000)}`
     }
   }

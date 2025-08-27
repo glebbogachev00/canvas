@@ -19,6 +19,8 @@ export interface GenerationParameters {
   textInput?: string
   encryptionType: EncryptionType
   codePosition: CodePosition
+  movement?: boolean
+  complexity?: number
 }
 
 export default function Home() {

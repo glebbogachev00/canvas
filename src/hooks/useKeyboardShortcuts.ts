@@ -34,18 +34,18 @@ export function useKeyboardShortcuts({
           onParametersChange({ patternType: 'texture' })
           break
         case 'Digit3':
-          onParametersChange({ patternType: 'geometric' })
+          onParametersChange({ patternType: 'matrix' })
           break
 
         // Color schemes: Q, W, E
         case 'KeyQ':
-          onParametersChange({ colorScheme: 'monochrome' })
+          onParametersChange({ colorScheme: 'blackWhite' })
           break
         case 'KeyW':
           onParametersChange({ colorScheme: 'grayscale' })
           break
         case 'KeyE':
-          onParametersChange({ colorScheme: 'accent' })
+          onParametersChange({ colorScheme: 'saturatedRed' })
           break
 
         // Regenerate: R or Space
@@ -57,7 +57,7 @@ export function useKeyboardShortcuts({
 
         // Movement toggle: M
         case 'KeyM':
-          onParametersChange({ movement: !parameters.movement })
+          onParametersChange({ movement: !(parameters.movement || false) })
           break
 
         // Export: S (Save)
@@ -74,12 +74,12 @@ export function useKeyboardShortcuts({
         // Complexity adjustment: Arrow keys
         case 'ArrowUp':
           onParametersChange({ 
-            complexity: Math.min(1.0, parameters.complexity + 0.05) 
+            complexity: Math.min(1.0, (parameters.complexity || 0.5) + 0.05) 
           })
           break
         case 'ArrowDown':
           onParametersChange({ 
-            complexity: Math.max(0.1, parameters.complexity - 0.05) 
+            complexity: Math.max(0.1, (parameters.complexity || 0.5) - 0.05) 
           })
           break
 

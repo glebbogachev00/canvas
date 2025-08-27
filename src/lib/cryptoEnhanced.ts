@@ -32,10 +32,10 @@ export class CryptoEnhanced {
       patternType: 'linear', 
       complexity: 0.5, 
       movement: false, 
-      colorScheme: 'monochrome', 
+      colorScheme: 'blackWhite', 
       canvasSize: 512,
       encryptionType: 'hash',
-      cornerPosition: 'topRight'
+      codePosition: 'topRight'
     })
     return hash.substring(0, 16).toUpperCase()
   }
@@ -122,13 +122,13 @@ export class CryptoEnhanced {
     return {
       publicLayer: {
         seed: publicSeed,
-        complexity: parameters.complexity * 0.7, // Reduced complexity for public
+        complexity: (parameters.complexity || 0.5) * 0.7, // Reduced complexity for public
         movement: false,
         textInput: 'public_' + (parameters.textInput || '')
       },
       privateLayer: {
         seed: privateSeed,
-        complexity: parameters.complexity * 1.3, // Enhanced complexity for private
+        complexity: (parameters.complexity || 0.5) * 1.3, // Enhanced complexity for private
         movement: parameters.movement,
         textInput: 'private_' + (parameters.textInput || '')
       },

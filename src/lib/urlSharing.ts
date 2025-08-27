@@ -3,10 +3,10 @@ import type { GenerationParameters } from '@/app/page'
 // Compress parameters into a URL-safe string
 export function encodeParameters(params: GenerationParameters): string {
   const compressed = {
-    p: params.patternType[0], // 'l', 't', 'g'
-    c: Math.round(params.complexity * 100), // 0-100
+    p: params.patternType[0], // 'l', 't', 'm', 'a'
+    c: Math.round((params.complexity || 0.5) * 100), // 0-100
     m: params.movement ? 1 : 0,
-    s: params.colorScheme[0], // 'm', 'g', 'a' 
+    s: params.colorScheme[0], // 'b', 'g', 's' 
     z: params.canvasSize,
     t: params.textInput || '',
     r: params.seed
@@ -25,14 +25,14 @@ export function decodeParameters(encoded: string): Partial<GenerationParameters>
     const compressed = JSON.parse(json)
 
     // Map back to full parameters
-    const patternMap = { l: 'linear', t: 'texture', g: 'geometric' } as const
-    const colorMap = { m: 'monochrome', g: 'grayscale', a: 'accent' } as const
+    const patternMap = { l: 'linear', t: 'texture', m: 'matrix', a: 'ascii' } as const
+    const colorMap = { b: 'blackWhite', g: 'grayscale', s: 'saturatedRed' } as const
 
     return {
       patternType: patternMap[compressed.p as keyof typeof patternMap] || 'linear',
       complexity: (compressed.c || 50) / 100,
       movement: Boolean(compressed.m),
-      colorScheme: colorMap[compressed.s as keyof typeof colorMap] || 'monochrome',
+      colorScheme: colorMap[compressed.s as keyof typeof colorMap] || 'blackWhite',
       canvasSize: compressed.z || 512,
       textInput: compressed.t || '',
       seed: compressed.r || Math.random().toString(36).substring(7)

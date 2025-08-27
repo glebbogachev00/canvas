@@ -17,7 +17,7 @@ export class TemporalEvolution {
     // Evolve complexity with sine wave
     const complexityOffset = Math.sin(elapsed * 0.5) * 0.1
     const evolvedComplexity = Math.max(0.1, Math.min(1.0, 
-      this.baseParameters.complexity + complexityOffset
+      (this.baseParameters.complexity || 0.5) + complexityOffset
     ))
 
     // Evolve seed periodically (every 30 seconds at default speed)
