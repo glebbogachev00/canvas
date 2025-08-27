@@ -1,6 +1,5 @@
 import type { GenerationParameters } from '@/app/page'
 import { getBinaryData, generateTextSeed } from './textToBits'
-import type { AudioFrequencyData } from './audioAnalysis'
 
 // Seeded random number generator for consistent results
 class SeededRandom {
@@ -32,7 +31,7 @@ function noise(x: number, seed: number = 0): number {
   return n - Math.floor(n)
 }
 
-export function generateLinear(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
+export function generateLinear(ctx: CanvasRenderingContext2D, params: GenerationParameters) {
   const { canvasSize, colorScheme, seed } = params
   const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
@@ -68,13 +67,6 @@ export function generateLinear(ctx: CanvasRenderingContext2D, params: Generation
       density *= (0.5 + bitValue * 0.8) // 0s create sparser areas, 1s create denser areas
     }
 
-    // Audio reactivity - bass drives density, beat creates bursts
-    if (audioData) {
-      density *= (0.3 + audioData.bass * 1.2) // Bass influences density
-      if (audioData.beat) {
-        density *= 1.5 // Beat creates burst effect
-      }
-    }
     
     ctx.fillStyle = getColor()
     
@@ -88,19 +80,9 @@ export function generateLinear(ctx: CanvasRenderingContext2D, params: Generation
         y = y * (0.3 + bitValue * 0.7) // 0s push towards top, 1s allow full height
       }
 
-      // Audio influences vertical distribution - treble at top, bass at bottom
-      if (audioData) {
-        const audioInfluence = (audioData.treble - audioData.bass) * 0.3
-        y += audioInfluence * canvasSize * 0.5
-        y = Math.max(0, Math.min(canvasSize, y))
-      }
       
       let dotSize = Math.max(0.5, rng.next() * 3 * complexity)
       
-      // Audio volume affects dot size
-      if (audioData) {
-        dotSize *= (0.5 + audioData.volume * 0.8)
-      }
       
       ctx.beginPath()
       ctx.arc(x, y, dotSize, 0, Math.PI * 2)
@@ -127,7 +109,7 @@ export function generateLinear(ctx: CanvasRenderingContext2D, params: Generation
   ctx.globalAlpha = 1
 }
 
-export function generateTexture(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
+export function generateTexture(ctx: CanvasRenderingContext2D, params: GenerationParameters) {
   const { canvasSize, colorScheme, seed } = params
   const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
@@ -235,7 +217,7 @@ export function generateTexture(ctx: CanvasRenderingContext2D, params: Generatio
   ctx.globalAlpha = 1
 }
 
-export function generateMatrix(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
+export function generateMatrix(ctx: CanvasRenderingContext2D, params: GenerationParameters) {
   const { canvasSize, colorScheme, seed } = params
   const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
@@ -326,7 +308,7 @@ export function generateMatrix(ctx: CanvasRenderingContext2D, params: Generation
   ctx.globalAlpha = 1
 }
 
-export function generateASCII(ctx: CanvasRenderingContext2D, params: GenerationParameters, audioData?: AudioFrequencyData | null) {
+export function generateASCII(ctx: CanvasRenderingContext2D, params: GenerationParameters) {
   const { canvasSize, colorScheme, seed } = params
   const complexity = 0.6 // Fixed complexity level
   const { bits, hasText } = getBinaryData(params)
@@ -366,9 +348,7 @@ export function generateASCII(ctx: CanvasRenderingContext2D, params: GenerationP
   const cols = Math.floor(canvasSize / charWidth)
   const rows = Math.floor(canvasSize / charHeight)
   
-  // Audio reactivity
-  const audioBoost = audioData ? (audioData.bass + audioData.mid) / 2 : 0
-  const totalIntensity = complexity + audioBoost * 0.5
+  const totalIntensity = complexity
   
   // Static background pattern (like the screenshot)
   const bgDensity = totalIntensity * 0.8

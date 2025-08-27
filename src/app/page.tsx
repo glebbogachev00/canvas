@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Canvas from '@/components/Canvas'
 import ParameterControls from '@/components/ParameterControls'
-import AudioControls from '@/components/AudioControls'
-import AudioAccordion from '@/components/AudioAccordion'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 
 export type PatternType = 'linear' | 'texture' | 'matrix' | 'ascii'
@@ -33,7 +31,6 @@ export default function Home() {
     codePosition: 'bottomLeft'
   })
 
-  const [audioFile, setAudioFile] = useState<File | null>(null)
   const [theme, setTheme] = useState<AppTheme>('white')
   const [showPrivateLayer, setShowPrivateLayer] = useState(false)
   const canvasRef = useRef<any>(null)
@@ -90,13 +87,6 @@ export default function Home() {
               onLayerToggle={setShowPrivateLayer}
             />
           </div>
-          <div className="mt-8">
-            <AudioAccordion
-              audioFile={audioFile}
-              onFileChange={setAudioFile}
-              theme={theme}
-            />
-          </div>
         </div>
 
         {/* Canvas Panel - 70% */}
@@ -106,7 +96,6 @@ export default function Home() {
           <Canvas 
             ref={canvasRef}
             parameters={parameters}
-            audioFile={audioFile}
             onParametersChange={updateParameters}
             theme={theme}
             showPrivateLayer={showPrivateLayer}
@@ -145,7 +134,6 @@ export default function Home() {
           <Canvas 
             ref={canvasRef}
             parameters={parameters}
-            audioFile={audioFile}
             onParametersChange={updateParameters}
             theme={theme}
             mobile={true}
@@ -166,40 +154,6 @@ export default function Home() {
             showPrivateLayer={showPrivateLayer}
             onLayerToggle={setShowPrivateLayer}
           />
-          
-          {/* Audio in mobile controls */}
-          <div className="mt-6 pt-4 border-t border-opacity-20 border-current">
-            {audioFile ? (
-              <AudioControls
-                audioFile={audioFile}
-                onFileChange={setAudioFile}
-                theme={theme}
-              />
-            ) : (
-              <>
-                <button 
-                  onClick={() => (document.querySelector('#audio-input') as HTMLInputElement)?.click()}
-                  className={`text-xs font-light transition-colors duration-200 ${
-                    theme === 'black' 
-                      ? 'text-gray-600 hover:text-white' 
-                      : 'text-gray-400 hover:text-black'
-                  }`}
-                >
-                  + audio
-                </button>
-                <input
-                  id="audio-input"
-                  type="file"
-                  accept="audio/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) setAudioFile(file)
-                  }}
-                  className="hidden"
-                />
-              </>
-            )}
-          </div>
         </div>
       </div>
     </main>

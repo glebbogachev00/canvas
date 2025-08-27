@@ -5,12 +5,10 @@ import type { GenerationParameters, AppTheme } from '@/app/page'
 import { generateHash } from '@/lib/crypto'
 import { generateLinear, generateTexture, generateMatrix, generateASCII } from '@/lib/generators'
 import { CryptoEnhanced } from '@/lib/cryptoEnhanced'
-import { AudioAnalyzer, type AudioFrequencyData } from '@/lib/audioAnalysis'
 import CryptoDisplay from './CryptoDisplay'
 
 interface CanvasProps {
   parameters: GenerationParameters
-  audioFile: File | null
   onParametersChange?: (params: Partial<GenerationParameters>) => void
   theme: AppTheme
   mobile?: boolean
@@ -18,14 +16,12 @@ interface CanvasProps {
   onLayerToggle?: (show: boolean) => void
 }
 
-const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ parameters, audioFile, onParametersChange, theme, mobile = false, showPrivateLayer: externalShowPrivateLayer, onLayerToggle }, ref) => {
+const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ parameters, onParametersChange, theme, mobile = false, showPrivateLayer: externalShowPrivateLayer, onLayerToggle }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [hash, setHash] = useState<string>('')
-  const [audioData, setAudioData] = useState<AudioFrequencyData | null>(null)
   // Use external showPrivateLayer if provided, otherwise use internal state
   const showPrivateLayer = externalShowPrivateLayer ?? false
   const [layeredData, setLayeredData] = useState<any>(null)
-  const audioAnalyzerRef = useRef<AudioAnalyzer | null>(null)
 
   const handleExport = () => {
     const canvas = canvasRef.current
@@ -98,16 +94,16 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
       // Render the active layer
       switch (parameters.patternType) {
         case 'linear':
-          generateLinear(ctx, layerParameters, audioData)
+          generateLinear(ctx, layerParameters)
           break
         case 'texture':
-          generateTexture(ctx, layerParameters, audioData)
+          generateTexture(ctx, layerParameters)
           break
         case 'matrix':
-          generateMatrix(ctx, layerParameters, audioData)
+          generateMatrix(ctx, layerParameters)
           break
         case 'ascii':
-          generateASCII(ctx, layerParameters, audioData)
+          generateASCII(ctx, layerParameters)
           break
       }
 
@@ -123,60 +119,26 @@ const Canvas = forwardRef<{ handleExport?: () => void }, CanvasProps>(({ paramet
       // Standard rendering for non-signature modes
       switch (parameters.patternType) {
         case 'linear':
-          generateLinear(ctx, parameters, audioData)
+          generateLinear(ctx, parameters)
           break
         case 'texture':
-          generateTexture(ctx, parameters, audioData)
+          generateTexture(ctx, parameters)
           break
         case 'matrix':
-          generateMatrix(ctx, parameters, audioData)
+          generateMatrix(ctx, parameters)
           break
         case 'ascii':
-          generateASCII(ctx, parameters, audioData)
+          generateASCII(ctx, parameters)
           break
       }
     }
-  }, [parameters, audioData, showPrivateLayer, theme])
+  }, [parameters, showPrivateLayer, theme])
 
   const [lastClickTime, setLastClickTime] = useState(0)
   const [mouseVelocity, setMouseVelocity] = useState(0)
   const lastMousePos = useRef({ x: 0, y: 0 })
   const lastMouseTime = useRef(Date.now())
 
-  // Audio analysis integration
-  useEffect(() => {
-    if (!audioFile) {
-      // Clean up audio analyzer when no file
-      if (audioAnalyzerRef.current) {
-        audioAnalyzerRef.current.dispose()
-        audioAnalyzerRef.current = null
-      }
-      setAudioData(null)
-      return
-    }
-
-    // Initialize audio analyzer when audio file is present
-    const initializeAnalyzer = async () => {
-      const audioElement = document.querySelector('audio') as HTMLAudioElement
-      if (!audioElement) return
-
-      audioAnalyzerRef.current = new AudioAnalyzer()
-      const success = await audioAnalyzerRef.current.initialize(audioElement)
-      
-      if (success) {
-        console.log('Audio analysis initialized')
-      }
-    }
-
-    initializeAnalyzer()
-
-    return () => {
-      if (audioAnalyzerRef.current) {
-        audioAnalyzerRef.current.dispose()
-        audioAnalyzerRef.current = null
-      }
-    }
-  }, [audioFile])
 
 
   const handleCanvasClick = (e: React.MouseEvent) => {
